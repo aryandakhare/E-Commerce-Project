@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSC Books Store | CodSoft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .product-card {
+            animation: fadeIn 0.3s ease-out forwards;
+            animation-delay: calc(var(--order) * 0.1s);
+        }
+        .cart-item {
+            transition: all 0.3s ease;
+        }
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-book-open text-2xl text-indigo-600"></i>
+                <h1 class="text-xl font-bold text-gray-800">UPSC Books Store</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="cartBtn" class="relative">
+                    <i class="fas fa-shopping-cart text-xl text-gray-600 hover:text-indigo-600"></i>
+                    <span id="cartCount" class="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </button>
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+                    Login
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-r from-indigo-500 to-blue-600 rounded-xl p-8 mb-12 text-white">
+            <div class="max-w-2xl">
+                <h2 class="text-3xl font-bold mb-4">Your Ultimate UPSC Preparation Store</h2>
+                <p class="text-lg mb-6">Get authentic books, test series and study materials curated by toppers</p>
+                <div class="relative">
+                    <input type="text" placeholder="Search for books..." class="w-full py-3 px-4 pr-12 rounded-lg bg-white bg-opacity-20 placeholder-white focus:outline-none">
+                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-white">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Featured Books</h2>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 bg-gray-200 rounded-md text-sm">History</button>
+                    <button class="px-3 py-1 bg-gray-200 rounded-md text-sm">Polity</button>
+                    <button class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm">All</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="productsContainer">
+                <!-- Products will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-20">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Your Cart</h3>
+                <button id="closeCartBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto mb-4" id="cartItemsContainer">
+                <!-- Cart items will be loaded here -->
+                <div class="text-center py-12 text-gray-500" id="emptyCartMessage">
+                    <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                    <p>Your cart is empty</p>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <div class="flex justify-between mb-2">
+                    <span class="font-medium">Subtotal:</span>
+                    <span id="cartSubtotal">₹0</span>
+                </div>
+                <div class="flex justify-between mb-4">
+                    <span class="font-medium">Shipping:</span>
+                    <span>FREE</span>
+                </div>
+                <div class="flex justify-between text-lg font-bold">
+                    <span>Total:</span>
+                    <span id="cartTotal">₹0</span>
+                </div>
+                <button id="checkoutBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg mt-4 hover:bg-indigo-700 transition disabled:opacity-50" disabled>
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Order Placed Successfully!</h3>
+                <p class="text-gray-600">Thank you for your purchase</p>
+            </div>
+            <div class="bg-gray-100 rounded-lg p-4 mb-6">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Order ID:</span>
+                    <span class="font-medium">#UPSC2023-<span id="orderId">0000</span></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Total:</span>
+                    <span class="font-bold" id="orderTotal">₹0</span>
+                </div>
+            </div>
+            <button id="closeModalBtn" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-lg font-bold mb-4">UPSC Books Store</h4>
+                    <p class="text-gray-400">Your one-stop destination for all UPSC preparation materials</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Books</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Test Series</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Categories</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">History</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Polity</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Geography</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Economy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                            <span class="text-gray-400">support@upscstore.com</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-phone text-gray-400"></i>
+                            <span class="text-gray-400">+91 9876543210</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>Developed by <strong>Aryan Dakhare</strong> as a Web Development Intern at <strong>CodSoft</strong></p>
+                <p class="mt-2">© 2023 UPSC Books Store. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Product Data (UPSC Books)
+        const products = [
+            {
+                id: 1,
+                name: "Indian Polity by Laxmikant",
+                category: "Polity",
+                price: 695,
+                image: "https://m.media-amazon.com/images/I/71+5xV9qH4L._AC_UF1000,1000_QL80_.jpg",
+                rating: 4.8,
+                description: "Comprehensive guide for Indian Polity and Constitution"
+            },
+            {
+                id: 2,
+                name: "A Brief History of Modern India",
+                category: "History",
+                price: 525,
+                image: "https://m.media-amazon.com/images/I/81XQ9+UQ1JL._AC_UF1000,1000_QL80_.jpg",
+                rating: 4.6,
+                description: "Spectrum's renowned book for modern Indian history"
+            },
+            {
+                id: 3,
+                name: "Certificate Physical and Human Geography",
+                category: "Geography",
+                price: 450,
+                image: "https://m.media-amazon.com/images/I/61g+0sX2PJL._AC_UF1000,1000_QL80_.jpg",
+                rating: 4.7,
+                description: "GC Leong's classic for physical and human geography"
+            },
+            {
+                id: 4,
+                name: "Indian Economy by Ramesh Singh",
+                category: "Economy",
+                price: 750,
+                image: "https://m.media-amazon.com/images/I/71XjYH1QHFL._AC_UF1000,1000_QL80_.jpg",
+                rating: 4.5,
+                description: "Complete guide for Indian economic concepts"
+            },
+            {
+                id: 5,
+                name: "Environment by Shankar IAS",
+                category: "Environment",
+                price: 580,
+                image: "https://m.media-amazon.com/images/I/71Qy1Q4j+1L._AC_UF1000,1000_QL80_.jpg",
+                rating: 4.4,
+                description: "Essential for ecology and environment preparation"
+            },
+            {
+                id: 6,
+                name: "Oxford School Atlas",
+                category: "Geography",
+                price: 550,
+                image: "https://m.media-amazon.com/images/I/81Q3+9UYJZL._AC_UF1000,1000_QL80_.jpg",
+                rating: 4.9,
+                description: "Must-have atlas for geography paper"
+            }
+        ];
+
+        // Cart Data
+        let cart = [];
+        let cartOpen = false;
+
+        // DOM Elements
+        const productsContainer = document.getElementById('productsContainer');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartItemsContainer = document.getElementById('cartItemsContainer');
+        const emptyCartMessage = document.getElementById('emptyCartMessage');
+        const cartCount = document.getElementById('cartCount');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const cartTotal = document.getElementById('cartTotal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const checkoutModal = document.getElementById('checkoutModal');
+        const orderTotal = document.getElementById('orderTotal');
+        const orderId = document.getElementById('orderId');
+
+        // Initialize the store
+        function initStore() {
+            renderProducts();
+            setupEventListeners();
+        }
+
+        // Render all products
+        function renderProducts() {
+            productsContainer.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-xl shadow-md overflow-hidden';
+                productCard.style.setProperty('--order', index);
+                
+                productCard.innerHTML = `
+                    <div class="relative">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+                        <span class="absolute top-2 right-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded-full">
+                            ${product.rating} <i class="fas fa-star"></i>
+                        </span>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-gray-800">${product.name}</h3>
+                            <span class="text-indigo-600 font-bold">₹${product.price}</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">${product.description}</p>
+                        <button onclick="addToCart(${product.id})" class="w-full bg-indigo-100 text-indigo-600 py-2 rounded-lg hover:bg-indigo-200 transition flex items-center justify-center space-x-2">
+                            <i class="fas fa-cart-plus"></i>
+                            <span>Add to Cart</span>
+                        </button>
+                    </div>
+                `;
+                
+                productsContainer.appendChild(productCard);
+            });
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            // Check if product already in cart
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+            
+            // Show cart if not open
+            if (!cartOpen) {
+                toggleCart();
+            }
+            
+            // Pulse animation on cart button
+            cartCount.classList.add('animate-ping');
+            setTimeout(() => {
+                cartCount.classList.remove('animate-ping');
+            }, 500);
+        }
+
+        // Update cart UI
+        function updateCart() {
+            // Update cart count
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            if (totalItems > 0) {
+                cartCount.classList.remove('hidden');
+                emptyCartMessage.classList.add('hidden');
+                checkoutBtn.disabled = false;
+            } else {
+                cartCount.classList.add('hidden');
+                emptyCartMessage.classList.remove('hidden');
+                checkoutBtn.disabled = true;
+            }
+            
+            // Update cart items
+            cartItemsContainer.innerHTML = '';
+            
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item bg-gray-50 rounded-lg p-4 mb-3';
+                
+                cartItem.innerHTML = `
+                    <div class="flex">
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md">
+                        <div class="ml-3 flex-1">
+                            <h4 class="font-medium text-gray-800">${item.name}</h4>
+                            <p class="text-sm text-gray-600">₹${item.price} x ${item.quantity}</p>
+                            <div class="flex items-center mt-2">
+                                <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center">
+                                    <i class="fas fa-minus text-xs"></i>
+                                </button>
+                                <span class="mx-2">${item.quantity}</span>
+                                <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center">
+                                    <i class="fas fa-plus text-xs"></i>
+                                </button>
+                                <button onclick="removeFromCart(${item.id})" class="ml-auto text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                cartItemsContainer.appendChild(cartItem);
+            });
+            
+            // Update totals
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartSubtotal.textContent = `₹${subtotal}`;
+            cartTotal.textContent = `₹${subtotal}`;
+        }
+
+        // Update item quantity
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            
+            if (item) {
+                item.quantity += change;
+                
+                if (item.quantity <= 0) {
+                    cart = cart.filter(item => item.id !== productId);
+                }
+                
+                updateCart();
+            }
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+        }
+
+        // Toggle cart sidebar
+        function toggleCart() {
+            cartOpen = !cartOpen;
+            
+            if (cartOpen) {
+                cartSidebar.classList.remove('translate-x-full');
+                document.body.style.overflow = 'hidden';
+            } else {
+                cartSidebar.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Checkout
+        function checkout() {
+            // Generate random order ID
+            const randomId = Math.floor(1000 + Math.random() * 9000);
+            orderId.textContent = randomId;
+            
+            // Set order total
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            orderTotal.textContent = `₹${total}`;
+            
+            // Show modal
+            checkoutModal.classList.remove('hidden');
+            
+            // Clear cart
+            cart = [];
+            updateCart();
+            toggleCart();
+        }
+
+        // Close modal
+        function closeModal() {
+            checkoutModal.classList.add('hidden');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Cart button
+            document.getElementById('cartBtn').addEventListener('click', toggleCart);
+            
+            // Close cart button
+            document.getElementById('closeCartBtn').addEventListener('click', toggleCart);
+            
+            // Checkout button
+            checkoutBtn.addEventListener('click', checkout);
+            
+            // Close modal button
+            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+            
+            // Close cart when clicking outside
+            document.addEventListener('click', (e) => {
+                if (cartOpen && !cartSidebar.contains(e.target) && e.target.id !== 'cartBtn' && !e.target.closest('#cartBtn')) {
+                    toggleCart();
+                }
+            });
+        }
+
+        // Initialize the store when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initStore);
+    </script>
+</body>
+</html>
